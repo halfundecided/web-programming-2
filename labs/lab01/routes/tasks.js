@@ -101,5 +101,35 @@ router.post("/", async (req, res) => {
  */
 router.put("/:id", async (req, res) => {
   let taskInfo = req.body;
-  // hello
+  if (!taskInfo) {
+    res.status(400).json({ error: "You must provide data to update a task" });
+    return;
+  }
+
+  // Check if the task that user want to update exists
+  try {
+    await taskData.getTaskById(req.params.id);
+  } catch (e) {
+    res.status(404).json({ error: "Task not found" });
+    return;
+  }
+
+  if (!taskInfo.title || !taskInfo.description || !taskInfo.hoursEstimated) {
+    res
+      .status(400)
+      .json({ error: "You must provide all details of the new state" });
+    return;
+  }
+  if (typeof taskInfo.completed === "undefined") {
+    res
+      .status(400)
+      .json({ error: "You must provide if it's completed or not as well" });
+  }
+
+  try {
+    const updatedTask = await taskData.updateTask(req.params.id, taskInfo);
+    res.json(updatedTask);
+  } catch (e) {
+    res.status(500).json({ error: e });
+  }
 });
