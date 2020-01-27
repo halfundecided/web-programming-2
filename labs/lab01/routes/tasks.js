@@ -133,3 +133,33 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ error: e });
   }
 });
+
+/**
+ * Updates the task with the supplied ID and returns the new task object
+ * task: PATCH calls only provide deltas of the value to update
+ * Note: you cannot manipulate comments in this route
+ */
+router.patch(":/id", async (req, res) => {
+  let taskInfo = req.body;
+  if (!taskInfo) {
+    res.status(400).json({ error: "You must provide data to update a task" });
+  }
+
+  try {
+    await tasksData.getTaskById(req.params.id);
+  } catch (e) {
+    res.status(404).json({ error: "Task not found" });
+    return;
+  }
+
+  try {
+    const updatedTask = await tasksData.updateTaskForPatch(
+      req.params.id,
+      taskInfo
+    );
+    res.json(updatedTask);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
+  }
+});

@@ -114,9 +114,56 @@ const updateTask = async (taskId, updatedTask) => {
 
   return await module.esports.getTaskById(taskId);
 };
+
+/**
+ * Update the task with the supplied ID: only provide deltas of the value to update
+ * @param {ObjectId} taskId
+ * @param {ObjectId} updatedTask
+ */
+const updateTaskForPatch = async (taskId, updatedTask) => {
+  if (typeof taskId === "undefined" || taskId.constructor !== String)
+    throw `You should provide a valid id`;
+
+  const taskCollection = await tasks();
+  const parsedId = ObjectId.createFromHexString(taskId);
+
+  const updatedTaskData = {};
+  if (updatedTask.title) {
+    if (updatedTask.title.constructor !== String)
+      throw `You should provide a proper input type`;
+    updatedTaskData.title = updatedTask.title;
+  }
+  if (updatedTask.description) {
+    if (updatedTask.description.constructor !== String)
+      throw `You should provide a proper input type`;
+    updatedTaskData.description = updatedTask.description;
+  }
+  if (updatedTask.hoursEstimated) {
+    if (updatedTask.hoursEstimated.constructor !== Number)
+      throw `You should provide a proper input type`;
+    updatedTaskData.hoursEstimated = updatedTask.hoursEstimated;
+  }
+  if (typeof updatedTask.completed !== "undefined") {
+    if (updatedTask.completed.constructor !== Boolean)
+      throw `You should provide a proper input type`;
+    updatedTaskData.completed = updatedTask.completed;
+  }
+
+  const updatedInfo = await taskCollection.updateOne(
+    { _id: parsedId },
+    { $set: updatedTaskData }
+  );
+
+  if (updatedInfo.modifiedCount === 0)
+    throw `could not update(patch) task successfully`;
+
+  return await module.exports.getTaskById(taskId);
+};
+
 module.exports = {
   getAll,
   getTaskById,
   createTask,
-  updateTask
+  updateTask,
+  updateTaskForPatch
 };
