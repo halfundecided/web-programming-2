@@ -18,6 +18,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 /**
  * Middleware
  */
+const accessed = {};
+app.use(function(req, res, next) {
+  if (!accessed[req.path]) {
+    accessed[req.path] = 0;
+  }
+  accessed[req.path]++;
+  console.log("====================== REQUEST ======================");
+  console.log("HTTP: " + req.method);
+  console.log("PATH: " + req.originalUrl);
+  console.log("BODY: " + JSON.stringify(req.body));
+  console.log("TOTAL ACCESSES: " + accessed[req.path]);
+
+  next();
+});
 
 configRoutes(app);
 app.listen(3000, function() {
