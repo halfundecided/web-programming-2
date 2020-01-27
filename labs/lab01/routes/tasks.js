@@ -42,3 +42,63 @@ router.get("/", async (req, res) => {
     res.sendStatus(500).json({ error: e });
   }
 });
+
+/**
+ * GET /api/tasks/:id
+ * Shows the task with the supplied ID
+ */
+router.get("/:id", async (req, res) => {
+  try {
+    const task = await taskData.getTaskById(req.params.id);
+    res.status(200).json(task);
+  } catch (e) {
+    res.status(404).json({ error: "Task not found" });
+  }
+});
+
+/**
+ * POST /api/tasks
+ * Creates a task with the supplied detail and returns created object
+ * fails request if not all details supplied
+ */
+
+router.post("/", async (req, res) => {
+  const taskInfo = req.body;
+
+  if (!taskInfo) {
+    res.status(400).json({ error: "You must provide data to create a task" });
+    return;
+  }
+  if (!taskInfo.title) {
+    res.status(400).json({ error: "You must provide a title" });
+    return;
+  }
+  if (!taskInfo.description) {
+    res.status(400).json({ error: "You must provide a description" });
+    return;
+  }
+  if (!taskInfo.hoursEstimated) {
+    res.status(400).json({ error: "You must provide estimated hours" });
+    return;
+  }
+
+  try {
+    const newTask = await taskData.createTask(
+      taskInfo.title,
+      taskInfo.description,
+      taskInfo.hoursEstimated
+    );
+    res.sendStatus(200).json(newTask);
+  } catch (e) {
+    res.sendStatus(500).json({ error: e });
+  }
+});
+
+/**
+ * Updates the task with the supplied ID and returns the new task object
+ * task: PUT calls must provide all details of the new state of the object
+ * Note: you cannot manipulate comments in this route
+ */
+router.put("/:id", async (req, res) => {
+  let taskInfo = req.body;
+});
