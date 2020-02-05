@@ -88,7 +88,8 @@ router.post("/", async (req, res) => {
       taskInfo.description,
       taskInfo.hoursEstimated
     );
-    res.sendStatus(200).json(newTask);
+    console.log(newTask);
+    res.status(200).json(newTask);
   } catch (e) {
     res.sendStatus(500).json({ error: e });
   }
